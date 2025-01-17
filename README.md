@@ -71,6 +71,6 @@ Abaixo está uma visão geral dos principais modelos do banco de dados:
 
 ## Instalação e Execução
 
-1. Clone o repositório:
+1. Rodar o Sistema:
    ```bash
-   git clone https://github.com/seu-usuario/sistema-estoque-camisas.git
+   npm run dev
