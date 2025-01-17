@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Country {
+  id    String @id @default(uuid()) // Identificador único para cada país, gerado automaticamente no formato UUID.
+  name  String @unique // Nome do país. Deve ser único no banco de dados.
+  teams Team[] // Um país pode ter vários times
+  slug  String @unique // Adicionar um slug único baseado no nome
+  @@map("countries")
+}
+
+model Team {
+  id   String @id @default(uuid()) // Identificador único para cada camisa, gerado automaticamente no formato UUID.
+  name String @unique // Nome do time. Deve ser único no banco de dados.
+  slug  String @unique // Adicionar um slug único baseado no nome
+  country    Country    @relation(fields: [countryId], references: [id])
+  // Define a relação com o modelo País, ligando `paisId` ao campo `id` de País.
+  countryId  String // Identifica o país ao qual o time pertence.
+  shirts Shirt[] // Um time pode ter várias camisas
+
+  @@map("teams")
+}
+
+model Shirt {
+  id          String @id @default(uuid()) // Identificador único para cada camisa, gerado automaticamente no formato UUID.
+  name        String // Nome da camisa, ex.: "Camisa Home 2024".
+  description String // Descrição detalhada da camisa.
+  price       Float // Preço da camisa, representado como número decimal.
+  imageUrl    String // URL da imagem da camisa.
+  slug  String @unique // Adicionar um slug único baseado no nome
+  teams     Team            @relation(fields: [teamId], references: [id])
+  // Define a relação com o model Time.
+  teamId    String // identifica o time que a camisa pertence
+  //sizes  ShirtSize[] // Relacionamento com os tamanhos
+  createdAt DateTime?       @default(now())
+  // Data e hora de criação do registro. Padrão: momento atual.
+  updatedAt DateTime        @updatedAt
+  // Data e hora de atualização automática sempre que o registro é modificado.
+  sizeId     String
+  size       Size     @relation(fields: [sizeId], references: [id])
+}
+
+model Size {
+  id      String          @id @default(uuid()) // Identificador único para cada tamanho.
+  size    String          @unique // Nome do tamanho, como 'P', 'M', 'G'. Deve ser único.
+  //shirts ShirtSize[] // Relacionamento com camisas. Um tamanho pode ser usado em várias camisas.
+  slug  String @unique // Adicionar um slug único baseado no nome
+  shirts Shirt[]  // Relacionamento com camisas
+}
+/*
+model ShirtSize {
+  id        String  @id @default(uuid()) // Identificador único para cada combinação camisa-tamanho.
+  shirtId  String // id que conecta à camisa.
+  sizeId String // id que conecta ao tamanho.
+  stock   Int // Estoque disponível para cada combinação.
+  shirts    Shirt  @relation(fields: [shirtId], references: [id])
+  // Define a relação com o modelo Camisa.
+  sizes   Size @relation(fields: [sizeId], references: [id])
+  // Define a relação com o modelo Tamanho.
+}*/
